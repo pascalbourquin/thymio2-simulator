@@ -73,13 +73,14 @@ def EventBouton(numBouton):
 		timers_buttons[numBouton] = BUTTONS_TEMPO
 
 def EventProxHorizontal(numProx):
-	print 'EventProxHorizontal'
+	print 'EventProxHorizontal: numProx=' + str(numProx)
 	AsebaVmLockHardware()
 	thymio['hardware']['prox_h'][numProx] = widgets_prox_h[numProx].get()
-	if thymio['hardware']['prox_h'][numProx] > PROX_H_THRESHOLD:
+	if thymio['hardware']['prox_h'][numProx] < PROX_H_THRESHOLD:
 		valLed = 32
 	else:
 		valLed = 0
+	
 	if 0 <= numProx <= 1:
 		thymio['hardware']['leds_prox_h'][numProx] = valLed
 	elif numProx == 2:
@@ -109,18 +110,25 @@ def PlacerMoteurs(canvas):
 
 def PlacerProxHorizontal(canvas):
 	widgets_prox_h[0] = Scale(canvas, from_=0, to=4300, orient=HORIZONTAL, length=40, width=20, command=lambda x: EventProxHorizontal(0))
-	widgets_prox_h[0].place(x=60, y=100)
 	widgets_prox_h[1] = Scale(canvas, from_=0, to=4300, orient=HORIZONTAL, length=40, width=20, command=lambda x: EventProxHorizontal(1))
-	widgets_prox_h[1].place(x=180, y=30)
 	widgets_prox_h[2] = Scale(canvas, from_=0, to=4300, orient=HORIZONTAL, length=40, width=20, command=lambda x: EventProxHorizontal(2))
-	widgets_prox_h[2].place(x=330, y=10)
 	widgets_prox_h[3] = Scale(canvas, from_=0, to=4300, orient=HORIZONTAL, length=40, width=20, command=lambda x: EventProxHorizontal(3))
-	widgets_prox_h[3].place(x=475, y=30)
 	widgets_prox_h[4] = Scale(canvas, from_=0, to=4300, orient=HORIZONTAL, length=40, width=20, command=lambda x: EventProxHorizontal(4))
-	widgets_prox_h[4].place(x=595, y=100)
 	widgets_prox_h[5] = Scale(canvas, from_=0, to=4300, orient=HORIZONTAL, length=40, width=20, command=lambda x: EventProxHorizontal(5))
-	widgets_prox_h[5].place(x=165, y=640)
 	widgets_prox_h[6] = Scale(canvas, from_=0, to=4300, orient=HORIZONTAL, length=40, width=20, command=lambda x: EventProxHorizontal(6))
+	widgets_prox_h[0].set(4300)
+	widgets_prox_h[1].set(4300)
+	widgets_prox_h[2].set(4300)
+	widgets_prox_h[3].set(4300)
+	widgets_prox_h[4].set(4300)
+	widgets_prox_h[5].set(4300)
+	widgets_prox_h[6].set(4300)
+	widgets_prox_h[0].place(x=60, y=100)
+	widgets_prox_h[1].place(x=180, y=30)
+	widgets_prox_h[2].place(x=330, y=10)
+	widgets_prox_h[3].place(x=475, y=30)
+	widgets_prox_h[4].place(x=595, y=100)
+	widgets_prox_h[5].place(x=165, y=640)
 	widgets_prox_h[6].place(x=490, y=640)
 
 def PlacerProxVertical(canvas):

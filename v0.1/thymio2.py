@@ -506,6 +506,7 @@ VARNUM_BUTTON_LEFT			= 43
 VARNUM_BUTTON_CENTER		= 44
 VARNUM_BUTTON_FORWARD		= 45
 VARNUM_BUTTON_RIGHT			= 46
+VARNUM_PROX_H               = 57
 VARNUM_MOTOR_LEFT_TARGET 	= 70
 VARNUM_MOTOR_RIGHT_TARGET 	= 71
 
@@ -950,8 +951,11 @@ def AsebaVmCheckAONSensor(vm, varNum, sensorVal, eventNum):
 		result = 1
 	return result	
 
+ASEBA_VM_SENSORS_PROX_POLL_FREQUENCY = 1
+
 def AsebaVmReadSensors(vm):
 	AsebaVmLockHardware()
+	v = vm['variables']
 	hw = vm['hardware']
 	
 	# EVENT_BUTTON:
@@ -964,8 +968,18 @@ def AsebaVmReadSensors(vm):
 	if r > 0:
 		AsebaVmSetPendingLocalEvent(vm, EVENT_BUTTONS)
 	
-	# EVENT_PROX always fired:
-	AsebaVmSetPendingLocalEvent(vm, EVENT_PROX)
+	# PROX VARIABLES <- hw(prox)
+	for i in range(7):
+		val = hw['prox_h'][i]
+		if val < 0:
+			val = 0
+		if val > 4300:
+			val = 4300
+		v[VARNUM_PROX_H + i] = val
+		
+	# EVENT_PROX sometimes automatically fired:
+	if ASEBA_VM_CLOCK_COUNTER % int(ASEBA_VM_SENSORS_PROX_POLL_FREQUENCY // ASEBA_VM_CLOCK_FREQUENCY) == 0:
+		AsebaVmSetPendingLocalEvent(vm, EVENT_PROX)
 	
 	AsebaVmUnlockHardware()
 
@@ -1017,6 +1031,7 @@ ASEBA_OP_OR					= 16
 ASEBA_OP_AND				= 17
 	
 def AsebaVmDoBinaryOperation(operand1, operand2, operation):
+	AsebaVmDebug('AsebaVmDoBinaryOperation: ' + 'op1=' + str(operand1) + ' op2=' + str(operand2) + ' opnum=' + str(operation))
 	result = 0
 	if operation == ASEBA_OP_SHIFT_LEFT:
 		result = operand1 << operand2
@@ -1214,6 +1229,7 @@ def AsebaVmStep(vm):
 		operand2 = AsebaVmStackPop(vm)
 		operand1 = AsebaVmStackPop(vm)
 		result = AsebaVmDoBinaryOperation(operand1, operand2, bytecode & ASEBA_BINARY_OPERATOR_MASK)
+		AsebaVmDebug('AsebaVmStep: ASEBA_BYTECODE_CONDITIONAL_BRANCH: result=' + str(result))
 		mask1 = 1 << ASEBA_IF_IS_WHEN_BIT
 		mask2 = 1 << ASEBA_IF_WAS_TRUE_BIT
 		if result and not((bytecode & mask1) and (bytecode & mask2)):
@@ -1252,18 +1268,23 @@ def AsebaVmRun(vm):
 	AsebaVmStep(vm)
 	vm['flags'] = vm['flags'] & ~ASEBA_VM_EVENT_RUNNING_MASK
 
+ASEBA_VM_CLOCK_FREQUENCY = 0.01
+ASEBA_VM_CLOCK_COUNTER = 0
+
 def AsebaVmMainLoop(vm):
+	global ASEBA_VM_CLOCK_COUNTER
 	while True:
 		AsebaVmReadSensors(vm)
 		if vm['flags'] & ASEBA_VM_EVENT_ACTIVE_MASK == 0 or vm['flags'] & ASEBA_VM_STEP_BY_STEP_MASK == 0:
 			eventNum = AsebaVmGetPendingLocalEvent(vm)
 			if eventNum != None:
-				if eventNum != EVENT_PROX:
-					AsebaVmDebug('Pending event ' + str(eventNum))
+				#if eventNum != EVENT_PROX:
+				AsebaVmDebug('Pending event ' + str(eventNum))
 				AsebaVmClrPendingLocalEvent(vm, eventNum)
 				AsebaVmSetupEvent(vm, ASEBA_EVENT_LOCAL_EVENTS_START - eventNum)
 		AsebaVmRun(vm)
 		AsebaVmWriteActuators(vm)
-				
-		sleep(0.1)
+		
+		ASEBA_VM_CLOCK_COUNTER = ASEBA_VM_CLOCK_COUNTER + 1		
+		sleep(ASEBA_VM_CLOCK_FREQUENCY)
 
