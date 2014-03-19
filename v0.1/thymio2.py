@@ -1,6 +1,5 @@
 
 
-
 '''
 ASEBA PROTOCOL
 '''
@@ -987,9 +986,16 @@ def AsebaVmWriteActuators(vm):
 	AsebaVmLockHardware()
 	v = vm['variables']
 	hw = vm['hardware']
-	hw['motor_targets'][HW_MOTOR_LEFT_TARGET] = v[VARNUM_MOTOR_LEFT_TARGET]
-	hw['motor_targets'][HW_MOTOR_RIGHT_TARGET] = v[VARNUM_MOTOR_RIGHT_TARGET]
+	valMotor = v[VARNUM_MOTOR_LEFT_TARGET]
+	if valMotor > 500:
+	    valMotor = -(0xFFF - valMotor + 1)
+	hw['motor_targets'][HW_MOTOR_LEFT_TARGET] = valMotor
+	valMotor = v[VARNUM_MOTOR_RIGHT_TARGET]
+	if valMotor > 500:
+	    valMotor = -(0xFFF - valMotor + 1)
+	hw['motor_targets'][HW_MOTOR_RIGHT_TARGET] = valMotor
 	AsebaVmUnlockHardware()
+
 
 def AsebaVmDebug(msg):
 	if ASEBA_VM_DEBUG == True:
