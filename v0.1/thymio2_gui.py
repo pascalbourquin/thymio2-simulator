@@ -1,4 +1,3 @@
-
 import threading
 
 from Tkinter import *
@@ -103,9 +102,9 @@ def PlacerBoutons(canvas):
 	widgets_buttons[HW_BUTTONS_RIGHT] = PlacerBouton(canvas, 433, 215, lambda: EventBouton(HW_BUTTONS_RIGHT))
 	
 def PlacerMoteurs(canvas):
-	widgets_motor_target[HW_MOTOR_RIGHT_TARGET] = Scale(canvas, from_=-500, to=500, orient=VERTICAL, length=170, width=10, command=None)
+	widgets_motor_target[HW_MOTOR_RIGHT_TARGET] = Scale(canvas, from_=500, to=-500, orient=VERTICAL, length=170, width=10, command=None)
 	widgets_motor_target[HW_MOTOR_RIGHT_TARGET].place(x=580, y=400)
-	widgets_motor_target[HW_MOTOR_LEFT_TARGET] = Scale(canvas, from_=-500, to=500, orient=VERTICAL, length=170, width=10, command=None)
+	widgets_motor_target[HW_MOTOR_LEFT_TARGET] = Scale(canvas, from_=500, to=-500, orient=VERTICAL, length=170, width=10, command=None)
 	widgets_motor_target[HW_MOTOR_LEFT_TARGET].place(x=80, y=400)
 
 def PlacerProxHorizontal(canvas):
