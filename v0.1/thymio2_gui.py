@@ -139,7 +139,7 @@ def PlacerProxVertical(canvas):
 REFRESH_TIME = 100	
 
 def UpdateLed(canvas, val, widgetLedNum):
-	if val < 16:
+	if val < 1:
 		canvas.itemconfig(widgetLedNum, fill='black')
 	else:
 		canvas.itemconfig(widgetLedNum, fill='red')
